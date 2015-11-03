@@ -1,3 +1,4 @@
+//Programming assignemnt
 String word = new String();
 PImage background;
 float topBorder;
