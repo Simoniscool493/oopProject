@@ -40,6 +40,14 @@ void draw()
   
   if(parseInt(word)<numEntries&&parseInt(word)>0)
   {
+    drawText(stats);
+  }
+  
+  
+}
+
+void drawText(String[][] stats)
+{
         text(species[parseInt(word)-1],sideBorder,topBorder*2);
         text("HP = " + stats[parseInt(word)-1][0],sideBorder,topBorder*3);
         text("Atk = " + stats[parseInt(word)-1][1],sideBorder,topBorder*4);
@@ -47,9 +55,6 @@ void draw()
         text("SpAtk = " + stats[parseInt(word)-1][3],sideBorder,topBorder*6);
         text("SpDef = " + stats[parseInt(word)-1][4],sideBorder,topBorder*7);
         text("Speed = " + stats[parseInt(word)-1][5],sideBorder,topBorder*8);
-        
-        draw
-   }
 }
 
 void getdata(String[] rawData,String[][] stats)
