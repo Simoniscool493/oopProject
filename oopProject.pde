@@ -1,40 +1,52 @@
 //Programming assignemnt
 String word = new String();
 PImage background;
+PFont font;
 float topBorder;
 float sideBorder;
 int numEntries;
 int numStats = 6;
-int rawData_length;
-String[] rawData = new String[rawData_length];
-String[] species = new String[numEntries];
+String[] rawData;
+String[] species;
+String[][] stats;
+
 
 void setup()
 {
+    
   size(1500,1000);
+
   topBorder = height/9;
   sideBorder = width/15;
   
-  background = loadImage("background.jpg");
-  PFont font = loadFont("mainFont.vlw");
+  loadFiles();
+  initializeVariables();
+  
   textFont(font,width/35);
   
-  rawData = loadStrings("stats.csv");
-  species = loadStrings("species.csv");
+  formatSpecies();
+  getdata(rawData,stats);
+
+
   
-  rawData_length = rawData.length;
-  numEntries=(rawData.length)/numStats;
-  formatSpecies(species);
 }
 
+void initializeVariables()
+{
+  numEntries=(rawData.length)/numStats;
+  stats = new String[numEntries][numStats];
+}
 
+void loadFiles()
+{
+  rawData = loadStrings("stats.csv");
+  species = loadStrings("species.csv");
+  background = loadImage("background.jpg");
+  font = loadFont("mainFont.vlw");
+}
 
 void draw()
 {
-  String[][] stats = new String[numEntries][numStats];
-  getdata(rawData,stats);
-    
-
   image(background,0,0,width,height);
   text(word,sideBorder,topBorder);
   
@@ -42,8 +54,6 @@ void draw()
   {
     drawText(stats);
   }
-  
-  
 }
 
 void drawText(String[][] stats)
@@ -71,10 +81,9 @@ void getdata(String[] rawData,String[][] stats)
         spec++;
       }
   }
-  
 }
 
-void formatSpecies(String[] species)
+void formatSpecies()
 {
   for(int i=0;i<species.length-1;i++)
   {
@@ -97,5 +106,3 @@ void keyTyped()
    word = word.substring(0,word.length()-1);
   }
 }
-
-
