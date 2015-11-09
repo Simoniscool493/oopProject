@@ -6,14 +6,15 @@ float topBorder;
 float sideBorder;
 int numEntries;
 int numStats = 6;
+int maxWordLength = 25;
 String[] rawData;
 String[] species;
 String[][] stats;
+String[] statNames = {"HP","Atk","Def","SpAtk","SpDef","Speed"};
 
 
 void setup()
 {
-    
   size(1500,1000);
 
   topBorder = height/9;
@@ -25,10 +26,19 @@ void setup()
   textFont(font,width/35);
   
   formatSpecies();
-  getdata(rawData,stats);
+  getdata();
+}
 
-
+void draw()
+{
+  image(background,0,0,width,height);
+  text(word,sideBorder,topBorder);
   
+  if(parseInt(word)<numEntries&&parseInt(word)>0)
+  {
+    drawText();
+    drawGraph();
+  }
 }
 
 void initializeVariables()
@@ -45,29 +55,38 @@ void loadFiles()
   font = loadFont("mainFont.vlw");
 }
 
-void draw()
+void drawText()
 {
-  image(background,0,0,width,height);
-  text(word,sideBorder,topBorder);
-  
-  if(parseInt(word)<numEntries&&parseInt(word)>0)
+  text(species[parseInt(word)-1],sideBorder,topBorder*2);
+
+  for(int i=0;i<numStats;i++)
   {
-    drawText(stats);
+     text(statNames[i] + " = " + stats[parseInt(word)-1][i],sideBorder,topBorder*(i+3));
   }
 }
 
-void drawText(String[][] stats)
+void drawGraph()
 {
-        text(species[parseInt(word)-1],sideBorder,topBorder*2);
-        text("HP = " + stats[parseInt(word)-1][0],sideBorder,topBorder*3);
-        text("Atk = " + stats[parseInt(word)-1][1],sideBorder,topBorder*4);
-        text("Def = " + stats[parseInt(word)-1][2],sideBorder,topBorder*5);
-        text("SpAtk = " + stats[parseInt(word)-1][3],sideBorder,topBorder*6);
-        text("SpDef = " + stats[parseInt(word)-1][4],sideBorder,topBorder*7);
-        text("Speed = " + stats[parseInt(word)-1][5],sideBorder,topBorder*8);
+  float graphGap = (sideBorder*9)/6;
+  float graphHeight = height-topBorder;
+  
+  line(sideBorder*5,graphHeight,sideBorder*14,graphHeight);
+  
+  for(int i=0;i<numStats;i++)
+  {      
+    float stat = parseInt(stats[parseInt(word)-1][i]);
+    stat = stat*3.25;
+    fill(i*(255/6),0,255-(i*(255/6)));
+    
+    rect((sideBorder*5)+(graphGap*i),graphHeight-stat,graphGap,stat);
+    fill(255);
+    //text(statNames[i],sideBorder*5+(graphGap*i),height-topBorder/2);
+    text((int)(stat/3.25),sideBorder*5+(graphGap*i)+graphGap/2.75,height-topBorder/2);
+  }
+  
 }
 
-void getdata(String[] rawData,String[][] stats)
+void getdata()
 {
   int spec = 0;
   
@@ -97,7 +116,7 @@ void formatSpecies()
 
 void keyTyped()
 {
-  if((key!=8)&&(word.length()<25)&&(key!='\n'))
+  if((key!=8)&&(word.length()<maxWordLength)&&(key!='\n')&&(key!= 61)&&(key!= 45))
   {
   word = word + key;
   }
@@ -105,4 +124,17 @@ void keyTyped()
   {
    word = word.substring(0,word.length()-1);
   }
+  if(key == 61||key == 45)
+  {
+    int buffer = parseInt(word);
+    if(key == 61)
+    {
+    buffer++;
+    }
+    else
+    {
+    buffer--;
+    }
+    word = String.valueOf(buffer);
+  } 
 }
