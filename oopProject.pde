@@ -10,6 +10,7 @@ int numEntries;
 int numStats = 6;
 int maxWordLength = 25;
 int highestStat;
+int textColor = 255;
 String[] rawData;
 String[] species;
 String[][] stats;
@@ -92,6 +93,7 @@ void loadFiles()
 
 void drawText()
 {
+  fill(textColor);
   text(species[parseInt(word)-1],sideBorder,topBorder*2);
 
   for(int i=0;i<numStats;i++)
@@ -116,7 +118,7 @@ void drawGraph()
     
     rect((sideBorder*5)+(graphGap*i),height-topBorder-stat,graphGap,stat);
     
-    fill(255);
+    fill(textColor);
     text(statNames[i],sideBorder*5+(graphGap*i),height-topBorder/2);
   }
   
