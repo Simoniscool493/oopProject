@@ -1,38 +1,81 @@
-//DT228-2 Programming assignemnt 
+//DT228-2 Programming assignment
 //Simon O'Neill C14444108
 
+ArrayList<Species> sp = new ArrayList<Species>();
 String word = new String();
-PImage background;
 PFont font;
+PImage background;
+String[] rawData;
+String[] names;
 float topBorder;
 float sideBorder;
-int numEntries;
-int numStats = 6;
-int maxWordLength = 25;
 int highestStat;
+int numStats = 6;
+int numTerms = 4;
+int numEntries = 4;
+int maxWordLength = 25;
 int textColor = 255;
-String[] rawData;
-String[] species;
-String[][] stats;
 String[] statNames = {"HP","Atk","Def","SpAtk","SpDef","Speed"};
-
 
 void setup()
 {
   size(1500,1000);
-
+  
   topBorder = height/9;
   sideBorder = width/15;
   
   loadFiles();
-  initializeVariables();
   setFont();
-  
-  formatSpecies();  
+
   getdata();
   
+  for(Species s: sp)
+  {
+    s.formatName();
+    numEntries = s.index;
+  }
+  
   highestStat = findHighest();
+}
 
+void draw()
+{
+  image(background,0,0,width,height);
+  text(word,sideBorder,topBorder);
+ 
+  for(Species s: sp)
+  {
+    if(parseInt(word)==s.index||(lwr(word)).equals(lwr(s.name)))
+    {
+      s.drawStatGraph();
+      s.printDetails();
+    }
+  }
+}
+
+int findHighest()
+{
+  int ans = 0;
+  
+  for(Species s: sp)
+  {
+    int n = s.topStat();
+    
+    if(n>ans)
+    {
+      ans = n;
+    }
+  }
+  
+  return ans;
+}
+
+void loadFiles()
+{
+  rawData = loadStrings("stats.csv");
+  names = loadStrings("species.csv");
+  background = loadImage("background.jpg");
+  font = loadFont("mainFont.vlw");
 }
 
 void setFont()
@@ -47,109 +90,30 @@ void setFont()
   }
 }
 
-int findHighest()
-{
-  int top = 0;
-  
-  for(int i=0;i<numEntries-1;i++)
-  {
-    for(int j=0;j<numStats;j++)
-    {
-      if(parseInt(stats[i][j])>top)
-      {
-        top = parseInt(stats[i][j]);
-      }
-    }
-  }
-  
-  return top;
-}
-
-void draw()
-{
-  image(background,0,0,width,height);
-  text(word,sideBorder,topBorder);
- 
-  if(parseInt(word)<numEntries&&parseInt(word)>0)
-  {
-    drawText();
-    drawGraph();
-  }
-}
-
-void initializeVariables()
-{
-  numEntries=((rawData.length)/numStats)+1;
-  stats = new String[numEntries][numStats];
-}
-
-void loadFiles()
-{
-  rawData = loadStrings("stats.csv");
-  species = loadStrings("species.csv");
-  background = loadImage("background.jpg");
-  font = loadFont("mainFont.vlw");
-}
-
-void drawText()
-{
-  fill(textColor);
-  text(species[parseInt(word)-1],sideBorder,topBorder*2);
-
-  for(int i=0;i<numStats;i++)
-  {
-     text(statNames[i] + " = " + stats[parseInt(word)-1][i],sideBorder,topBorder*(i+3));
-  }
-}
-
-void drawGraph()
-{
-  float graphGap = (sideBorder*9)/6;
-  float graphHeight = height-topBorder*2;
-  
-  line(sideBorder*5,height-topBorder,sideBorder*14,height-topBorder);
-  
-  for(int i=0;i<numStats;i++)
-  {      
-    fill(i*(255/6),0,255-(i*(255/6)));
-
-    float stat = parseInt(stats[parseInt(word)-1][i]);
-    stat = map(stat,0,highestStat,0,graphHeight);
-    
-    rect((sideBorder*5)+(graphGap*i),height-topBorder-stat,graphGap,stat);
-    
-    fill(textColor);
-    text(statNames[i],sideBorder*5+(graphGap*i),height-topBorder/2);
-  }
-  
-}
-
 void getdata()
 {
-  int spec = 0;
-  
-  for(int i=0;i<rawData.length;i++)
+  for(int i=0;i<rawData.length;i+=6)
   {
-      String[] buffer = split(rawData[i],',');
-      stats[spec][Integer.parseInt(buffer[1])-1] = buffer[2];
-      
-      if(Integer.parseInt(buffer[1])==numStats)
-      {
-        spec++;
-      }
-  }
-}
+    Species species = new Species();
+    sp.add(species);
+   
+    String[][] buffer = new String[numEntries][numStats];
+    
+    for(int j=0;j<numStats;j++)
+    {
+        String[] buffer2 = split(rawData[i+j],',');
+        
+        for(int k=0;k<numEntries;k++)
+        {
+          buffer[k][j] = buffer2[k];
+        }
+        
+        species.stats[j] = parseInt(buffer[2][j]);
+        species.index = parseInt(buffer2[0]);
+        species.name = names[species.index-1];
+    }
 
-void formatSpecies()
-{
-  for(int i=0;i<species.length;i++)
-  {
-    species[i] = (species[i].substring(0,species[i].length()-1));
-    char[] buffer = new char[12];
-    buffer = species[i].toCharArray();
-    buffer[0] -= 32;
-    species[i] = String.valueOf(buffer);
-  }
+   }
 }
 
 void keyTyped()
@@ -175,4 +139,25 @@ void keyTyped()
     }
     word = String.valueOf(buffer);
   } 
+  
+}
+
+String lwr(String st)
+{
+    char[] buffer = new char[12];
+    String ans = new String();
+    
+    buffer = st.toCharArray();
+    
+    for(int i=0;i<buffer.length;i++)
+    {
+      if(buffer[i]>64&&buffer[i]<91)
+      {
+        buffer[i] += 32;
+      }
+    }
+    
+    ans = String.valueOf(buffer);
+    
+    return ans;
 }
