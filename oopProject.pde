@@ -2,6 +2,7 @@
 //Simon O'Neill C14444108
 
 import gifAnimation.*;
+import ddf.minim.*;
 
 ArrayList<Species> sp = new ArrayList<Species>();
 String word = new String();
@@ -16,6 +17,7 @@ String[] statNames = {"HP","Atk","Def","SpAtk","SpDef","Speed"};
 float topBorder;
 float sideBorder;
 float spreadRad;
+float spriteScale;
 
 int highestStat;
 int numStats = 6;
@@ -29,63 +31,66 @@ char[] modes = {' ','b','s'};
 
 void setup()
 {
-  
-  frameRate(30);  
   size(1500,1000);
   
   topBorder = height/9;
   sideBorder = width/15;
   spreadRad = height/3;
+  spriteScale = height/500;
   
   setStatColors();
   loadFiles();
   setFont();
 
-  getdata(this);
-  loadSprites();
+  getData(this,this);
+  loadMedia();
   
   highestStat = findHighest();
 }
 
 void draw()
 {
-   changeMode();
+  changeMode();
 
-   imageMode(CORNER);
-   image(background,0,0,width,height);
-   
-    if(mode == 'b'||mode=='s')
-    { 
-      fill(textColor);
-      text(word,sideBorder,topBorder);
-      
-      imageMode(CENTER);
-      
-      for(Species s: sp)
+  imageMode(CORNER);
+  image(background,0,0,width,height);
+  
+  if(mode == 'b'||mode=='s')
+  { 
+    text(word,sideBorder,topBorder);
+    
+    imageMode(CENTER);
+    
+    for(Species s: sp)
+    {
+      if(parseInt(word)==s.index||(lwr(word)).equals(lwr(s.name)))
       {
-        if(parseInt(word)==s.index||(lwr(word)).equals(lwr(s.name)))
+        if(mode == 'b')
         {
-          if(mode == 'b')
-          {
-            s.drawStatGraph();
-          }
-          else if(mode == 's')
-          {
-            s.drawHex();
-          }
-          s.printDetails();
-          s.displayGif(width-sideBorder*2,topBorder*1.5,200,200);
+          s.drawStatGraph();
+        }
+        else if(mode == 's')
+        {
+          s.drawHex();
+        }
+        
+        s.printDetails();
+        s.displayGif(width-sideBorder*2,topBorder*1.5,200,200);
+        
+        if(keyPressed&&key==',')
+        {
+          s.playCry();
         }
       }
     }
-    else if(mode == ' ')
-    {
-      text("Welcome to the project!\nPress b to open the bar chart menu.\nPress s to open the spread graph\nPress d to open the search menu",sideBorder,topBorder);
-    }
-    
-}
+  }
+  else if(mode == ' ')
+  {
+    text("Welcome to the project!\nPress b to open the bar chart menu.\nPress s to open the spread graph\nPress d to open the search menu",sideBorder,topBorder);
+  }   
+}//end draw
 
-void loadSprites()
+void loadMedia()
 {
   println("Loading sprites...");
   
@@ -98,8 +103,16 @@ void loadSprites()
   }
   
   println("Sprites loaded");
+  println("Loading cries...");
+  
+  for(Species s: sp)
+  {
+    s.loadCry();
+  }
+  
+  println("Cries loaded");
+}//end loadMedia
 
-}
 int findHighest()
 {
   int ans = 0;
@@ -115,7 +128,7 @@ int findHighest()
   }
   
   return ans;
-}
+}//end findHighest
 
 void setStatColors()
 {
@@ -127,23 +140,22 @@ void setStatColors()
     statColors[1][i] = 0;
     statColors[2][i] = 255-(i*(255/6));
   }
-}
+}//end setStatColors
 
 void changeMode()
 {
-   if(keyPressed && (key == 32||mode==' '))
-   {
-     for(int i=0;i<modes.length;i++)
-     {
-       if(modes[i] == key)
-       {   
-         word="";
-         mode = key;
-       }
-     }
-   } 
-}
-
+  if(keyPressed && (key == 32||mode==' '))
+  {
+    for(int i=0;i<modes.length;i++)
+    {
+      if(modes[i] == key)
+      {   
+        word="";
+        mode = key;
+      }
+    }
+  } 
+}//end changeMode
 
 void loadFiles()
 {
@@ -151,7 +163,7 @@ void loadFiles()
   names = loadStrings("species.csv");
   background = loadImage("background.jpg");
   font = loadFont("mainFont.vlw");
-}
+}//end loadFiles
 
 void setFont()
 {
@@ -163,38 +175,37 @@ void setFont()
   {
     textFont(font,width/35);
   }
-}
+}//end setFont
 
-void getdata(PApplet papp)
+void getData(PApplet papp,java.lang.Object job)
 {
   for(int i=0;i<rawData.length;i+=6)
   {
-    Species species = new Species(papp);
+    Species species = new Species(papp,job);
     sp.add(species);
    
     String[][] buffer = new String[numEntries][numStats];
     
     for(int j=0;j<numStats;j++)
     {
-        String[] buffer2 = split(rawData[i+j],',');
+      String[] buffer2 = split(rawData[i+j],',');
         
-        for(int k=0;k<numEntries;k++)
-        {
-          buffer[k][j] = buffer2[k];
-        }
-        
-        species.stats[j] = parseInt(buffer[2][j]);
-        species.index = parseInt(buffer2[0]);
-        species.name = names[species.index-1];
-        species.stats[numStats] = species.stats[0];
+      for(int k=0;k<numEntries;k++)
+      {
+        buffer[k][j] = buffer2[k];
+      }
+      
+      species.stats[j] = parseInt(buffer[2][j]);
+      species.index = parseInt(buffer2[0]);
+      species.name = names[species.index-1];
+      species.stats[numStats] = species.stats[0];
     }
-
-   }
-}
+  }
+}//end getData
 
 void keyTyped()
 {
-  if((key!=8)&&(word.length()<maxWordLength)&&(key!='\n')&&(key!= 61)&&(key!= 45))
+  if((key!=8)&&(word.length()<maxWordLength)&&(key!='\n')&&(key!= 61)&&(key!= 45)&&(key!= ','))
   {
     word = word + key;
   }
@@ -215,25 +226,22 @@ void keyTyped()
     }
     word = String.valueOf(buffer);
   } 
-  
-}
+}//end keyTyped
 
 String lwr(String st)
 {
-    char[] buffer = new char[12];
-    String ans = new String();
+  char[] buffer = new char[12];
+  String ans = new String();
+  buffer = st.toCharArray();
     
-    buffer = st.toCharArray();
-    
-    for(int i=0;i<buffer.length;i++)
+  for(int i=0;i<buffer.length;i++)
+  {
+    if(buffer[i]>64&&buffer[i]<91)
     {
-      if(buffer[i]>64&&buffer[i]<91)
-      {
-        buffer[i] += 32;
-      }
+      buffer[i] += 32;
     }
+  }
     
-    ans = String.valueOf(buffer);
-    
-    return ans;
-}
+  ans = String.valueOf(buffer);
+  return ans;
+}//end lwr
