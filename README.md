@@ -16,9 +16,9 @@ The colour of the species’ total stats indicates how strong it is. The weaker sp
 The asignment is controlleed by the keyboard. Pressing + and - will cycle through species in both visualisations that show individual species. Pressing b will show the small bar chart, pressign a will show the chart with all species, and pressing s will show the spread graph.
 I was able to play the animated sprite and cry by importing the libraries, mimin and gifAnimation.
 
-![Sketch](Snapshots/1.png)
-![Sketch](Snapshots/2.png)
-![Sketch](Snapshots/3.png)
+![Sketch](screenshots/1.png)
+![Sketch](screenshots/2.png)
+![Sketch](screenshots/3.png)
  
 
  
